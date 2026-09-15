@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: vrazhenko_do_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: vrazhenko_do
+      POSTGRES_PASSWORD: password0000
+      POSTGRES_DB: practice_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
