@@ -1,0 +1,9 @@
+{
+  "size": 50,
+  "query": {
+    "multi_match": {
+      "query": "приказ",
+      "fields": ["title^3", "content"]
+    }
+  }
+}
