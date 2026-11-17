@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:16
+    container_name: vrazhenko_do_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: vrazhenko_do
+      POSTGRES_PASSWORD: password0000
+      POSTGRES_DB: practice_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    container_name: vrazhenko_do_opensearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: vrazhenko_do_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: vrazhenko_do_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: vrazhenko_do_cadvisor
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    mem_limit: 512m
+    cpus: 0.5
+
+volumes:
+  postgres_data:
+  opensearch_data:
